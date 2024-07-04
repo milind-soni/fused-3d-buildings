@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Display buildings in 3D</title>
+  <meta property="og:description" content="Use extrusions to display buildings' height in 3D." />
+  <meta charset='utf-8'>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css' />
+  <script src='https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js'></script>
+  <style>
+      body { margin: 0; padding: 0; }
+      html, body, #map { height: 100%; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    const map = new maplibregl.Map({
+        container: 'map',
+        style: {
+            'id': 'raster',
+            'version': 8,
+            'name': 'Raster tiles',
+            'center': [0, 0],
+            'zoom': 0,
+            'sources': {
+                'raster-tiles': {
+                    'type': 'raster',
+                    'tiles': ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                    'tileSize': 256,
+                    'minzoom': 0,
+                    'maxzoom': 19
+                },
+                'fused-vector-source': {
+                    'type': 'vector',
+                    'tiles': ['https://www.fused.io/server/v1/realtime-shared/4de5827ee50b9df75a7137ec784e66ee9bcb35f0181e83f156873e8a28dac072/run/tiles/{z}/{x}/{y}?dtype_out_vector=mvt'],
+                    'minzoom': 6,
+                    'maxzoom': 14
+                }
+            },
+            'layers': [
+                {
+                    'id': 'background',
+                    'type': 'background',
+                    'paint': {
+                        'background-color': '#e0dfdf'
+                    }
+                },
+                {
+                    'id': 'simple-tiles',
+                    'type': 'raster',
+                    'source': 'raster-tiles'
+                },
+                {
+                    'id': 'fused-buildings',
+                    'type': 'fill-extrusion',
+                    'source': 'fused-vector-source',
+                    'source-layer': 'udf', // Adjust as needed
+                    'paint': {
+                        'fill-extrusion-color': 'rgb(53, 175, 109)',
+                        'fill-extrusion-height': ['get', 'height'], // Ensure 'height' is the correct property name
+                        'fill-extrusion-base': ['get', 'min_height'], // Ensure 'min_height' is the correct property name
+                        'fill-extrusion-opacity': 0.6
+                    }
+                }
+            ]
+        },
+        center: [-87.61694, 41.86625],
+        zoom: 15.99,
+        pitch: 40,
+        bearing: 20,
+        antialias: true
+    });
+</script>
+</body>
+</html>
